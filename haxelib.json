@@ -1,6 +1,6 @@
 {
-	"name": "EasyShare",
-	"url" : "",
+	"name": "YunoFile",
+	"url" : "https://github.com/Teejio/yunoFile",
 	"license": "MIT",
 	"tags": ["haxe", "openfl", "flash", "neko", "cpp", "extension"],
 	"description": "Yuno is a custom file extension built to share multiple files efficently",
