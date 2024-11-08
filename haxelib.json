@@ -1,0 +1,10 @@
+{
+	"name": "EasyShare",
+	"url" : "",
+	"license": "MIT",
+	"tags": ["haxe", "openfl", "flash", "neko", "cpp", "extension"],
+	"description": "Yuno is a custom file extension built to share multiple files efficently",
+	"version": "1.0.0",
+	"releasenote": "Intial Release",
+	"contributors": ["Teejio"]
+}
