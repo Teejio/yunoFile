@@ -6,8 +6,10 @@ import haxe.io.Bytes;
 import haxe.io.Path;
 
 import flixel.addons.util.FlxAsyncLoop;
+import flixel.FlxBasic;
 
-class YunoReader {
+
+class YunoReader extends FlxBasic {
 
 
 
@@ -41,6 +43,7 @@ class YunoReader {
 		}
 		parent = _parent;
 		
+		super();
 	}
 
 
@@ -50,8 +53,9 @@ class YunoReader {
 	}
 
 
-	public function destroy(){ 
+	override public function destroy(){ 
 		paths.resize(0);
+		super.destroy();
 	  }
 
 	  public function deletePath(path:String, ?skibidi:Bool = false){
@@ -173,9 +177,11 @@ class YunoReader {
 
 			if (i == numFiles) {
 
+
 				for (_callback in onFinished){
 					_callback();
 				}
+				destroy();
 			}
 
 			i++;

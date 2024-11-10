@@ -1,6 +1,8 @@
 package yuno;
 
 
+import flixel.FlxBasic;
+
 import yuno.YunoFile.File;
 import haxe.io.Bytes;
 
@@ -8,7 +10,7 @@ import haxe.io.Bytes;
 import haxe.io.Path;
 using StringTools;
 
-class YunoWriter {
+class YunoWriter extends FlxBasic {
 	private var _files:Array<File>;
 
 	public var files(get, never):Array<File>;
@@ -28,6 +30,7 @@ class YunoWriter {
 		} else {
 			_files = entries;
 		}
+		super();
 	}
 
 	public function addFile(path:String, ?renamePath:Null<String> = null ) {
@@ -140,7 +143,7 @@ class YunoWriter {
   
 	}
 
-	public function toString() {
+	override public function toString() {
 		return _files.toString();
 	}
 }
