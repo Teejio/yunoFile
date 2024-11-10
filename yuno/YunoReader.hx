@@ -5,6 +5,8 @@ using StringTools;
 import haxe.io.Bytes;
 import haxe.io.Path;
 
+import flixel.addons.util.FlxAsyncLoop;
+
 class YunoReader {
 
 
@@ -16,15 +18,29 @@ class YunoReader {
 	private var numFiles:Int;
 	private var bytes:Bytes;
 
+	public var progress:Float = 0.;
+
 	private var rename:Map<String, String> = [];
+
 
 
 	public var paths:Array<String> = [];
 
-	public function new(data:Null<Bytes> = null) {
+	
+	private var _loop:FlxAsyncLoop;
+	public var onFinished:Array<Void->Void> = [];
+
+
+	public var parent:Dynamic;
+
+	var curIdx = 1;
+
+	public function new(_parent:Dynamic, data:Null<Bytes> = null) {
 		if (data != null) {
 			run(data);
 		}
+		parent = _parent;
+		
 	}
 
 
@@ -35,18 +51,15 @@ class YunoReader {
 
 
 	public function destroy(){ 
-		for (i in 0...paths.length){
-	
-		  paths.pop();
-		}
+		paths.resize(0);
 	  }
 
 	  public function deletePath(path:String, ?skibidi:Bool = false){
 		for(file in sys.FileSystem.readDirectory(path)) {
 		  var dir = haxe.io.Path.join([path, file]);
-		  //trace(dir);
+		  trace(dir, skibidi, paths.contains(dir) );
 		  if (sys.FileSystem.isDirectory(dir)) {
-			  deletePath(dir);
+			  deletePath(dir, skibidi);
 		  } else {
 	
 			
@@ -104,7 +117,9 @@ class YunoReader {
 
 		var fileType = 0;
 		var pathLength = 0;
-		for (i in 0...numFiles){
+
+		var i = 1;
+		_loop = new FlxAsyncLoop(numFiles, function() {
 
 			//trace("testing if verisonLogicWorks");
 
@@ -117,14 +132,15 @@ class YunoReader {
 			trace(path);
 			trace(fileType);
 			path =Path.join([entryFolder, path]);
+			trace(path);
 			if ( fileType == 0){ // i flipped when writing teehee
 	  
 	  
-			  if (!sys.FileSystem.exists(path)) continue;
+			  if (!sys.FileSystem.exists(path)) return;
 			  
 			  if (path.contains(".")){
 				sys.FileSystem.deleteFile(path);
-				continue;
+				return;
 			  }
 	  
 			  deletePath(path);
@@ -147,11 +163,28 @@ class YunoReader {
 			else{
 	  
 			  trace(path);
-			  
+			  trace(paths.length);
 			   deletePath(path, true);
 			}
 
+			progress = i/numFiles;
+
+			
+
+			if (i == numFiles) {
+
+				for (_callback in onFinished){
+					_callback();
+				}
+			}
+
+			i++;
+
 		}
+		, 10);
+
+		parent.add(_loop);
+		_loop.start();
 
 	}
 	private function runV0(entryFolder:String){
@@ -177,7 +210,7 @@ class YunoReader {
 		}
 
 	}
-	public function run(data:Bytes, ?entryFolder:String = "") {
+	@async  public function run(data:Bytes, ?entryFolder:String = "") {
 		trace("run Deployed");
 		bytes = haxe.zip.Uncompress.run(data);
 
@@ -188,6 +221,8 @@ class YunoReader {
     version = bytes.getInt32(0); 
 
 	Reflect.callMethod(this, Reflect.field(this, 'runV${Std.string(version) }'), [ entryFolder]); // look ma no switches
+	
+
 	}
 
 }

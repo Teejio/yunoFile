@@ -5,7 +5,7 @@ import yuno.YunoFile.File;
 import haxe.io.Bytes;
 
 
-
+import haxe.io.Path;
 using StringTools;
 
 class YunoWriter {
@@ -14,7 +14,12 @@ class YunoWriter {
 	public var files(get, never):Array<File>;
 
 	public function get_files() {
-		return _files.copy();
+		return _files;
+	}
+
+	function clear(){
+
+		_files.resize(0);
 	}
 
 	public function new(entries:Array<File> = null) {
@@ -25,7 +30,10 @@ class YunoWriter {
 		}
 	}
 
-	public function addFile(path:String) {
+	public function addFile(path:String, ?renamePath:Null<String> = null ) {
+
+
+		if (renamePath != null) path = Path.join( [renamePath, Path.withoutDirectory(path)] );
 		var bytes:haxe.io.Bytes = haxe.zip.Compress.run(haxe.io.Bytes.ofData(sys.io.File.getBytes(path).getData()), 2);
 
 		var pathByters = haxe.zip.Compress.run(haxe.io.Bytes.ofString(path), 2);
@@ -56,12 +64,15 @@ class YunoWriter {
   buffer.addInt32(name.length);
   buffer.addString(name);
   buffer.addInt32(_files.length);
+  trace(_files.length);
   for (file in _files){
+
     buffer.addInt32( file.fileType );
     buffer.addInt32(file.pathSize);
     buffer.add(file.path);
 
     if (file.fileType == 1){
+		
       buffer.addInt32(file.dataSize);
       buffer.add(file.data);
     }
@@ -72,7 +83,7 @@ class YunoWriter {
 
 
 		var data:haxe.io.Bytes = buffer.getBytes();
-		_files = new Array<File>();
+		//_files = new Array<File>();
         return haxe.zip.Compress.run(data,2);
 
 		
